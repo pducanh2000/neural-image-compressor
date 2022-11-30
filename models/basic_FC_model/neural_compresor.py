@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
 
-from .encoder import Encoder
-from .decoder import Decoder
-from .quantizer import Quantizer
+# from .encoder import Encoder
+# from .decoder import Decoder
+# from .quantizer import Quantizer
 
 
 class NeuralCompressor(nn.Module):
@@ -23,7 +23,8 @@ class NeuralCompressor(nn.Module):
     def forward(self, x, reduction="avg"):
         # Encoding
         z = self.encoder(x)
-        # Quantizing
+
+        # Quantization
         quantizer_out = self.quantizer(z)
 
         # Decoding

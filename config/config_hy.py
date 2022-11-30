@@ -1,16 +1,25 @@
-entropy_coding_type = 'arm' # arm or indp or uniform
-D = 64   # input dimension
-C = 16  # code length
-E = 8 # codebook size (i.e., the number of quantized values)
-M = 256  # the number of neurons
-M_kernels = 32 # the number of kernels in causal conv1d layers
+import torch
 
-# beta: how much we weight rate
-if entropy_coding_type == 'uniform':
-    beta = 0.
-else:
-    beta = 1.
+params = {
+    # Paths
+    "checkpoint_folder": "",
+    "result_folder": "",
+    "data_folder": "",
 
-lr = 1e-3 # learning rate
-num_epochs = 1000 # max. number of epochs
-max_patience = 50 # an early stopping is used, if training doesn't improve for longer than 20 epochs, it is stopped
+    # Training params
+    "device": "cuda" if torch.cuda.is_available() else "cpu",
+    "entropy_coding_type": "arm",   # ["arm", "indp", "uniform"]
+    "beta": 1,                      # If entropy_coding_type is uniform, beta should be 0
+    "lr": 1e-3,                     # Learning rate
+    "num_epochs": 1000,             # max number of epochs
+    "max_patience": 50              # patience for early stopping
+
+    # Size params
+    "D": 64,                        # input dimension
+    "C": 16,                        # code length
+    "E": 8,                         # codebook size - the number of quantized values
+    "M": 256,                       # Number of hidden neurons
+    "M_kernels": 32,                # the number of kernel in causal conv 1d layers
+    "EPS": 1e-7,                    # param in torch clamp to avoid zero
+
+}
