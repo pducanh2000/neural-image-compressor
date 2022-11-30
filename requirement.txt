@@ -1,5 +1,8 @@
 torch
 numpy
+matplotlib
 jsons
 pyyaml
 scikit-learn
+argparse
+tqdm

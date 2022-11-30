@@ -1,10 +1,6 @@
 import torch
 import torch.nn as nn
 
-# from .encoder import Encoder
-# from .decoder import Decoder
-# from .quantizer import Quantizer
-
 
 class NeuralCompressor(nn.Module):
     def __init__(self, encoder, decoder, entropy_encoding, quantizer, beta=1., detaching=False):
@@ -30,15 +26,17 @@ class NeuralCompressor(nn.Module):
         # Decoding
         x_reconstruct = self.decoder(quantizer_out[2])
 
-        # Distortion
-        distortion = torch.mean(torch.pow(x - x_reconstruct, 2), 1)
-        # Rate: entropy encoding
-        rate = torch.mean(self.entropy_encoding(quantizer_out[0], quantizer_out[2]), 1)
+        return x_reconstruct, quantizer_out
 
-        # Objective
-        objective = distortion + self.beta * rate
-
-        if reduction == 'sum':
-            return objective.sum(), distortion.sum(), rate.sum()
-        else:
-            return objective.mean(), distortion.mean(), rate.mean()
+        # # Distortion
+        # distortion = torch.mean(torch.pow(x - x_reconstruct, 2), 1)
+        # # Rate: entropy encoding
+        # rate = torch.mean(self.entropy_encoding(quantizer_out[0], quantizer_out[2]), 1)
+        #
+        # # Objective
+        # objective = distortion + self.beta * rate
+        #
+        # if reduction == 'sum':
+        #     return objective.sum(), distortion.sum(), rate.sum()
+        # else:
+        #     return objective.mean(), distortion.mean(), rate.mean()

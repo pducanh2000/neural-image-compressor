@@ -12,7 +12,7 @@ params = {
     "beta": 1,                      # If entropy_coding_type is uniform, beta should be 0
     "lr": 1e-3,                     # Learning rate
     "num_epochs": 1000,             # max number of epochs
-    "max_patience": 50              # patience for early stopping
+    "max_patience": 50,              # patience for early stopping
 
     # Size params
     "D": 64,                        # input dimension

@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from config.config_hy import params
+from config.config_hyp import params
 
 
 class UniformEntropyCoding(nn.Module):
@@ -12,12 +12,12 @@ class UniformEntropyCoding(nn.Module):
 
         self.probs = torch.softmax(torch.ones(1, self.code_dim, self.codebook_dim), -1)
 
-    def sample(self, quantizer=None, B=10):
-        code = torch.zeros(B, self.code_dim, self.codebook_dim)
-        for b in range(B):
-            indx = torch.multinomial(torch.softmax(self.probs, -1).squeeze(0), 1).squeeze()
+    def sample(self, quantizer=None, b=10):
+        code = torch.zeros(b, self.code_dim, self.codebook_dim)
+        for b_idx in range(b):
+            index = torch.multinomial(torch.softmax(self.probs, -1).squeeze(0), 1).squeeze()
             for i in range(self.code_dim):
-                code[b, i, indx[i]] = 1
+                code[b_idx, i, index[i]] = 1
 
         code = quantizer.indices2codebook(code)
         return code
@@ -37,10 +37,10 @@ class IndependentEntropyCoding(nn.Module):
 
     def sample(self, quantizer=None, b=10):
         code = torch.zeros(b, self.code_dim, self.codebook_dim)
-        for b in range(b):
-            indx = torch.multinomial(torch.softmax(self.probs, -1).squeeze(0), 1).squeeze()
+        for b_idx in range(b):
+            index = torch.multinomial(torch.softmax(self.probs, -1).squeeze(0), 1).squeeze()
             for i in range(self.code_dim):
-                code[b, i, indx[i]] = 1
+                code[b_idx, i, index[i]] = 1
 
         code = quantizer.indices2codebook(code)
         return code
@@ -52,7 +52,7 @@ class IndependentEntropyCoding(nn.Module):
 
 # Arithmetic Entropy encoding
 class CausalConv1D(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size, dilation, a=False, **kwargs):
+    def __init__(self, in_channels, out_channels, kernel_size, dilation=1, a=False, **kwargs):
         super(CausalConv1D, self).__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -67,6 +67,7 @@ class CausalConv1D(nn.Module):
             kernel_size=self.kernel_size,
             stride=1,
             padding=0,
+            dilation=self.dilation,
             **kwargs
         )
 
@@ -90,7 +91,7 @@ class ARMNet(nn.Module):
             nn.LeakyReLU(),
             CausalConv1D(self.num_kernels, self.num_channels, kernel_size=self.kernel_size, a=False, bias=True),
             nn.LeakyReLU(),
-            CausalConv1D(self.num_kernels, out_channels=params["E"], dilation=1, kernel_size=kernel_size, A=False, bias=True))
+            CausalConv1D(self.num_kernels, out_channels=params["E"], kernel_size=kernel_size, A=False, bias=True))
 
     def forward(self, x):
         h = self.arm_net(x)
@@ -118,8 +119,8 @@ class ARMEntropyCoding(nn.Module):
 
         for d in range(self.code_dim):
             p = self.f(x_new)
-            indx_d = torch.multinomial(p[:, d, :], num_samples=1)
-            codebook_value = quantizer.codebook[0, indx_d].squeeze()
+            index_d = torch.multinomial(p[:, d, :], num_samples=1)
+            codebook_value = quantizer.codebook[0, index_d].squeeze()
             x_new[:, d] = codebook_value
 
         return x_new
