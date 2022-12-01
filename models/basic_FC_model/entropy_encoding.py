@@ -89,9 +89,9 @@ class ARMNet(nn.Module):
         self.arm_net = nn.Sequential(
             CausalConv1D(1, num_kernels, kernel_size=self.kernel_size, a=True, bias=True),
             nn.LeakyReLU(),
-            CausalConv1D(self.num_kernels, self.num_channels, kernel_size=self.kernel_size, a=False, bias=True),
+            CausalConv1D(self.num_kernels, self.num_kernels, kernel_size=self.kernel_size, a=False, bias=True),
             nn.LeakyReLU(),
-            CausalConv1D(self.num_kernels, out_channels=params["E"], kernel_size=kernel_size, A=False, bias=True))
+            CausalConv1D(self.num_kernels, out_channels=params["E"], kernel_size=kernel_size, a=False, bias=True))
 
     def forward(self, x):
         h = self.arm_net(x)
