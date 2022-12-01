@@ -21,5 +21,4 @@ params = {
     "M": 256,                       # Number of hidden neurons
     "M_kernels": 32,                # the number of kernel in causal conv 1d layers
     "EPS": 1e-7,                    # param in torch clamp to avoid zero
-
 }
