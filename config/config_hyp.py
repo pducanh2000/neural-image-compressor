@@ -2,9 +2,9 @@ import torch
 
 params = {
     # Paths
-    "checkpoint_folder": "",
-    "result_folder": "",
-    "data_folder": "",
+    "checkpoint_folder": "./data/checkpoint/",
+    "result_folder": ".data/result/",
+    "data_folder": ".data/dataset/",
 
     # Training params
     "device": "cuda" if torch.cuda.is_available() else "cpu",
