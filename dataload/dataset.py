@@ -21,6 +21,9 @@ class DigitsDataset(Dataset):
         label = self.labels[item]
         return torch.Tensor(image, dtype=torch.float32), torch.Tensor(label, dtype=torch.float64)
 
+    def __len__(self):
+        return len(images)
+
 
 if __name__ == "__main__":
     digit_dataset = load_digits()
