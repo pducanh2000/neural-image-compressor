@@ -3,10 +3,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_curve(config_params, name, nll_val, metric_name='loss'):
-    plt.plot(np.arange(len(nll_val)), nll_val, linewidth='3')
-    plt.xlabel('epochs')
+def plot_curve(config_params, metric_name, metric_log):
+    plt.plot(np.arange(len(metric_log)), metric_log, linewidth="3")
+    plt.xlabel("epochs")
     plt.ylabel(metric_name)
-    save_result_path = os.path.join(config_params["result"], name + metric_name + '_val_curve.pdf')
-    plt.savefig(save_result_path, bbox_inches='tight')
+    result_model_folder = os.path.join(config_params["result_folder"], config_params["model_name"])
+    if not os.path.isdir(result_model_folder):
+        os.mkdir(result_model_folder)
+    save_result_path = os.path.join(result_model_folder, metric_name + "_curve.pdf")
+    plt.savefig(save_result_path, bbox_inches="tight")
     plt.close()

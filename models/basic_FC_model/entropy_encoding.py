@@ -135,4 +135,5 @@ class ARMEntropyCoding(nn.Module):
         """
         p = self.f(x)   # (b, code_dim)
         out = -torch.sum(z * torch.log(p), 2)   # (b, )
+
         return out

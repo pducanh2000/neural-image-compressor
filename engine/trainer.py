@@ -17,10 +17,10 @@ class State(object):
         self.val_distortion_losses = []
         self.val_rate_losses = []
         self.patience = 0
-        self.best_val_loss = 0
+        self.best_val_loss = 9999
 
 
-def train_on_epoch(model, loss_fn, optimizer, train_loader, state):
+def train_on_epoch(model, loss_fn, optimizer, scheduler, train_loader, state):
     model.train()
     device = next(model.parameters()).device
     # Init return value
@@ -58,7 +58,8 @@ def train_on_epoch(model, loss_fn, optimizer, train_loader, state):
             Steps=idx,
             D=epoch_distortion,
             R=epoch_rate,
-            Obj_Loss=epoch_objective_loss
+            Obj_Loss=epoch_objective_loss,
+            LR=scheduler.get_last_lr()[0]
         )
     state.train_distortion_losses.append(epoch_distortion)
     state.train_rate_losses.append(epoch_rate)
@@ -105,7 +106,17 @@ def eval_on_epoch(model, loss_fn, val_loader, state):
     return state
 
 
-def train(model_name, model, loss_fn, optimizer, train_loader, val_loader, config_params):
+def train(model, loss_fn, optimizer, scheduler, train_loader, val_loader, config_params):
+    # Create checkpoint folder
+    checkpoint_model_folder_path = os.path.join(config_params["checkpoint_folder"], config_params["model_name"])
+    if not os.path.isdir(checkpoint_model_folder_path):
+        os.mkdir(checkpoint_model_folder_path)
+    else:
+        if config_params["resume"]:
+            last_save_path = os.path.join(checkpoint_model_folder_path, "last.pth")
+            device = next(model.parameters()).device
+            model.load_state_dict(torch.load(last_save_path, map_location=device))
+
     state = State()
     for epoch in range(config_params["num_epochs"]):
         state.epoch = epoch
@@ -115,6 +126,7 @@ def train(model_name, model, loss_fn, optimizer, train_loader, val_loader, confi
             model,
             loss_fn,
             optimizer,
+            scheduler,
             train_loader,
             state
         )
@@ -122,14 +134,19 @@ def train(model_name, model, loss_fn, optimizer, train_loader, val_loader, confi
         # Eval phase
         state = eval_on_epoch(model, loss_fn, val_loader, state)
 
-        if state.objective_losses[-1] < state.best_val_loss:
-            print("Saving best model...")
-            torch.save(model, os.path.join(config_params["checkpoint_folder"], model_name + "_best.pth"))
+        if state.val_objective_losses[-1] < state.best_val_loss:
+            save_path = os.path.join(checkpoint_model_folder_path, "best.pth")
+            torch.save(model, save_path)
             state.patience = 0
+            state.best_val_loss = state.val_objective_losses[-1]
+            print("Saved best model!!!")
         else:
-            torch.save(model, os.path.join(config_params["checkpoint_folder"], model_name + "_last.pth"))
+            save_path = os.path.join(checkpoint_model_folder_path, "last.pth")
+            torch.save(model, save_path)
             state.patience += 1
+            scheduler.step()
+            print("Saved last model!!!")
+        print("Best Val Loss: ", state.best_val_loss)
         if state.patience >= config_params["max_patience"]:
             break
-
     return state

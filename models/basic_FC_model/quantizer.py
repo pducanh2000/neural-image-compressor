@@ -40,7 +40,8 @@ class Quantizer(nn.Module):
         distances = torch.exp(
             -torch.sqrt(torch.pow(inputs_repeat - self.codebook.unsqueeze(1), 2))
         )    # (b, code_dim, codebook_dim)
-        print("Distance shape: ", distances.shape)  # Comment to hide the shape of distance
+        # print("Distance shape: ", distances.shape)  # Comment to hide the shape of distance
+
         # indices hard
         indices = torch.argmax(distances, dim=2).unsqueeze(2)    # (b, code_dim, 1)
         indices_hard: torch.Tensor = self.indices_to_onehot(inputs_shape, indices)   # (b, code_dim, codebook_dim)
