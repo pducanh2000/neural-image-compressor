@@ -21,6 +21,10 @@ class Decoder(nn.Module):
         self._init_weights()
 
     def forward(self, x_embed):
+        """
+        :param x_embed: a Tensor with the shape of (b, code_dim)
+        :return: a reconstructed tensor with the shape of (b, d)
+        """
         x_construct = self.fc_decoder_net(x_embed)
         return x_construct
 

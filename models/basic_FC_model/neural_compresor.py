@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 
 
@@ -16,27 +15,18 @@ class NeuralCompressor(nn.Module):
         # We can detach inputs to the rate, then we learn rate and distortion separately
         self.detaching = detaching
 
-    def forward(self, x, reduction="avg"):
+    def forward(self, x):
+        """
+        :param x: a tensor with the shape of (b, d)
+        :return: a tuple of x_reconstruct with the shape of (b, d) and output of quantizer
+        """
         # Encoding
-        z = self.encoder(x)
+        z = self.encoder(x)     # (b, code_dim)
 
         # Quantization
-        quantizer_out = self.quantizer(z)
+        quantizer_out = self.quantizer(z)   # [(b, codebook_dim, code_dim), (b, codebook_dim, code_dim), (b, code_dim)]
 
         # Decoding
-        x_reconstruct = self.decoder(quantizer_out[2])
+        x_reconstruct = self.decoder(quantizer_out[2])      # (b, d)
 
         return x_reconstruct, quantizer_out
-
-        # # Distortion
-        # distortion = torch.mean(torch.pow(x - x_reconstruct, 2), 1)
-        # # Rate: entropy encoding
-        # rate = torch.mean(self.entropy_encoding(quantizer_out[0], quantizer_out[2]), 1)
-        #
-        # # Objective
-        # objective = distortion + self.beta * rate
-        #
-        # if reduction == 'sum':
-        #     return objective.sum(), distortion.sum(), rate.sum()
-        # else:
-        #     return objective.mean(), distortion.mean(), rate.mean()

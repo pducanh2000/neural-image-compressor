@@ -19,7 +19,7 @@ class DigitsDataset(Dataset):
         else:
             image = self.images[item]
         label = self.labels[item]
-        return torch.Tensor(image), torch.Tensor(label)
+        return torch.Tensor(image), torch.Tensor([label])
 
     def __len__(self):
         return len(self.images)

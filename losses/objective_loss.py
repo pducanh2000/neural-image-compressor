@@ -17,7 +17,7 @@ class ObjectiveLoss(nn.Module):
         :return: distortion, rate, objective loss
         """
         # Distortion
-        distortion = torch.mean(torch.pow((x - x_reconstruct), 2), 1)
+        distortion = torch.mean(torch.pow((x - x_reconstruct), 2), 1)       # (b, )
 
         # Rate
         rate = torch.mean(self.entropy_encoding(quantizer_output[0], quantizer_output[2]), 1)

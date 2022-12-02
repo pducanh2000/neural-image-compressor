@@ -94,10 +94,12 @@ class ARMNet(nn.Module):
             CausalConv1D(self.num_kernels, out_channels=params["E"], kernel_size=kernel_size, a=False, bias=True))
 
     def forward(self, x):
-        h = self.arm_net(x)
-        h = h.permute(2, 0, 1)
-        p = torch.softmax(h, 2)
-        return p
+        """
+        :param x: a tensor with the shape of (b, 1, code_dim)
+        :return: a tensor with the shape of (b, codebook_dim, code_dim)
+        """
+        out = self.arm_net(x)
+        return out
 
 
 class ARMEntropyCoding(nn.Module):
@@ -108,9 +110,9 @@ class ARMEntropyCoding(nn.Module):
         self.arm_net = arm_net  # it takes b x 1 x code_dim and outputs b x codebook_dim x code_dim
 
     def f(self, x):
-        h = self.arm_net(x.unsqueeze(1))
-        h = h.permute(0, 2, 1)
-        p = torch.softmax(h, 2)
+        h = self.arm_net(x.unsqueeze(1))    # (b, codebook_dim, code_dim)
+        h = h.permute(0, 2, 1)              # (b, code_dim, codebook_dim)
+        p = torch.softmax(h, 2)             # (b, code_dim)
 
         return p
 
@@ -126,5 +128,11 @@ class ARMEntropyCoding(nn.Module):
         return x_new
 
     def forward(self, z, x):
-        p = self.f(x)
-        return -torch.sum(z * torch.log(p), 2)
+        """
+        :param z: indices_soft with the shape of (b, code_dim, codebook_dim)
+        :param x: quantized code with the shape of (b, code_dim)
+        :return:
+        """
+        p = self.f(x)   # (b, code_dim)
+        out = -torch.sum(z * torch.log(p), 2)   # (b, )
+        return out

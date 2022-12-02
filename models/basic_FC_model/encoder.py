@@ -20,6 +20,11 @@ class Encoder(nn.Module):
         self._init_weights()
 
     def forward(self, x):
+        """
+        :param x: Input tensor with the shape of (b, d)
+        :return: a tensor with the shape of (b, c)
+        """
+
         x_embed = self.fc_encoder_net(x)
         return x_embed
 
