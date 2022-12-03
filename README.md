@@ -6,8 +6,8 @@ My simple implementation is based on [Jmtomczak 's blog](https://jmtomczak.githu
 # Set up env:
 - Using conda
 ```commandline
-conda init env
-conda activate env
+conda create --name <your env name>
+conda activate <your env name>
 pip install -r requirement.txt
 ```
 You can set up your hyperparameters in ```./config/config_hy```
