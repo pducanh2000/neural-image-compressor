@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
 from sklearn.datasets import load_digits
@@ -19,7 +20,7 @@ class DigitsDataset(Dataset):
         else:
             image = self.images[item]
         label = self.labels[item]
-        return torch.Tensor(image), torch.Tensor([label])
+        return torch.Tensor(np.array(image)), torch.Tensor(np.array([label]))
 
     def __len__(self):
         return len(self.images)

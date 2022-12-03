@@ -6,3 +6,4 @@ pyyaml
 scikit-learn
 argparse
 tqdm
+opencv-python
